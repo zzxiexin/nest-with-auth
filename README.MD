@@ -1,74 +1,213 @@
-1、用户注册
-```markdown
-POST /users
-Body: {
-  "username": "string",
-  "email": "string",
-  "password": "string"
-}
+# NestJS QQ账号管理系统 API 文档
 
-curl -X POST http://localhost:3000/users -H "Content-Type: application/json" -d '{"username": "testuser", "email": "test@example.com", "password": "password123"}'
+## 目录
+- [认证相关接口](#认证相关接口)
+  - [用户注册](#用户注册)
+  - [用户登录](#用户登录)
+- [QQ账号管理接口](#qq账号管理接口)
+  - [创建QQ账号](#创建qq账号)
+  - [获取QQ账号列表](#获取qq账号列表)
+  - [获取特定QQ账号](#获取特定qq账号)
+  - [更新QQ账号](#更新qq账号)
+  - [删除QQ账号](#删除qq账号)
+
+## 认证相关接口
+
+### 用户注册
+
+**请求**
+```bash
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "xinxin",
+    "password": "xinxin",
+    "email": "xinxin@qq.com"
+  }'
 ```
 
-2、用户登录
-```markdown
-POST /auth/login
-Body: {
-  "username": "string",
-  "password": "string"
-}
-
-curl -X POST http://localhost:3000/auth/login -H "Content-Type: application/json" -d '{"username": "testuser", "password": "password123"}' | cat
-```
-
-3、获取用户列表（需要认证）
-```markdown
-GET /users
-Headers: {
-  "Authorization": "Bearer your-jwt-token"
-}
-
-curl -X GET http://localhost:3000/users -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3R1c2VyIiwic3ViIjoxLCJpYXQiOjE3NDM5NTI1MTksImV4cCI6MTc0NDAzODkxOX0.2rkPPVWh9cnOD5IiSlnQOf9wukwakoTTtdLGr6xC1PI" | cat
-```
-
-4、获取单个用户（需要认证）
-```markdown
-GET /users/:id
-Headers: {
-  "Authorization": "Bearer your-jwt-token"
-}
-```
-
-5、更新用户信息（需要认证）
-```markdown
-PATCH /users/:id
-Headers: {
-  "Authorization": "Bearer your-jwt-token"
-}
-Body: {
-  "username": "string",
-  "email": "string",
-  "password": "string"
+**响应**
+```json
+{
+  "username": "xinxin",
+  "email": "xinxin@qq.com",
+  "id": 4,
+  "isActive": true,
+  "createdAt": "2025-04-13T04:44:07.849Z",
+  "updatedAt": "2025-04-13T04:44:07.849Z"
 }
 ```
 
-6、删除用户（需要认证）
-```markdown
-DELETE /users/:id
-Headers: {
-  "Authorization": "Bearer your-jwt-token"
+### 用户登录
+
+**请求**
+```bash
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "xinxin",
+    "password": "xinxin"
+  }'
+```
+
+**响应**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 4,
+    "username": "xinxin",
+    "email": "xinxin@qq.com"
+  }
 }
 ```
 
-安全特性：
-所有密码都使用 bcrypt 进行加密存储   
-JWT 令牌用于认证   
-路由保护确保只有认证用户才能访问特定端点   
-输入验证确保数据的完整性   
-您可以根据需要扩展这个基础项目：   
-添加更多的用户属性   
-实现角色和权限系统   
-添加邮件验证功能   
-实现密码重置功能   
-添加用户头像上传功能   
-实现用户会话管理   
+## QQ账号管理接口
+
+> 注意：所有 QQ 账号管理接口都需要在请求头中携带 token：
+> `-H "Authorization: Bearer your_token_here"`
+
+### 创建QQ账号
+
+**请求**
+```bash
+curl -X POST http://localhost:3000/qq-accounts \
+  -H "Authorization: Bearer your_token_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "qqNumber": "123456789",
+    "password": "qq123456",
+    "description": "我的QQ账号"
+  }'
+```
+
+**响应**
+```json
+{
+  "id": 1,
+  "qqNumber": "123456789",
+  "password": "qq123456",
+  "description": "我的QQ账号",
+  "userId": 4,
+  "createdAt": "2025-04-13T04:45:27.448Z",
+  "updatedAt": "2025-04-13T04:45:27.448Z"
+}
+```
+
+### 获取QQ账号列表
+
+**请求**
+```bash
+curl -H "Authorization: Bearer your_token_here" \
+  http://localhost:3000/qq-accounts
+```
+
+**响应**
+```json
+[
+  {
+    "id": 1,
+    "qqNumber": "123456789",
+    "password": "qq123456",
+    "description": "我的QQ账号",
+    "userId": 4,
+    "createdAt": "2025-04-13T04:45:27.448Z",
+    "updatedAt": "2025-04-13T04:45:27.448Z"
+  }
+]
+```
+
+### 获取特定QQ账号
+
+**请求**
+```bash
+curl -H "Authorization: Bearer your_token_here" \
+  http://localhost:3000/qq-accounts/1
+```
+
+**响应**
+```json
+{
+  "id": 1,
+  "qqNumber": "123456789",
+  "password": "qq123456",
+  "description": "我的QQ账号",
+  "userId": 4,
+  "createdAt": "2025-04-13T04:45:27.448Z",
+  "updatedAt": "2025-04-13T04:45:27.448Z"
+}
+```
+
+### 更新QQ账号
+
+**请求**
+```bash
+curl -X PUT http://localhost:3000/qq-accounts/1 \
+  -H "Authorization: Bearer your_token_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "description": "更新后的QQ账号描述",
+    "password": "newpassword123"
+  }'
+```
+
+**响应**
+```json
+{
+  "id": 1,
+  "qqNumber": "123456789",
+  "password": "newpassword123",
+  "description": "更新后的QQ账号描述",
+  "userId": 4,
+  "createdAt": "2025-04-13T04:45:27.448Z",
+  "updatedAt": "2025-04-13T04:48:33.000Z"
+}
+```
+
+### 删除QQ账号
+
+**请求**
+```bash
+curl -X DELETE http://localhost:3000/qq-accounts/1 \
+  -H "Authorization: Bearer your_token_here"
+```
+
+**响应**
+```
+HTTP/1.1 204 No Content
+```
+
+## 安全说明
+
+1. 所有 QQ 账号管理接口都需要认证（JWT token）
+2. 用户只能操作自己的 QQ 账号
+3. 尝试访问其他用户的账号会返回 403 Forbidden
+4. 密码长度至少 6 位
+
+## 错误响应
+
+1. 未授权访问
+```json
+{
+  "message": "Unauthorized",
+  "statusCode": 401
+}
+```
+
+2. 访问其他用户的账号
+```json
+{
+  "message": "您只能访问自己的QQ账号",
+  "error": "Forbidden",
+  "statusCode": 403
+}
+```
+
+3. 账号不存在
+```json
+{
+  "message": "QQ账号不存在",
+  "error": "Not Found",
+  "statusCode": 404
+}
+```
